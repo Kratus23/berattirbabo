@@ -6,42 +6,160 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
+      margin: 0;
       background: black;
       color: lime;
       font-family: monospace;
-      padding: 20px;
-      animation: glitch 0.3s infinite;
+      overflow: hidden;
+      animation: shake 0.3s infinite;
     }
-    @keyframes glitch {
+    @keyframes shake {
       0% { transform: translate(0); }
       25% { transform: translate(2px, -2px); }
       50% { transform: translate(-2px, 2px); }
       75% { transform: translate(2px, 2px); }
       100% { transform: translate(0); }
     }
-    h1, h2 {
-      text-align: center;
+    .fade {
+      opacity: 0;
+      animation: fadein 2s forwards;
     }
-    pre {
+    @keyframes fadein {
+      to { opacity: 1; }
+    }
+    #lockScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      color: red;
+      font-size: 1.5em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #countdown {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    #main {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+    #left {
+      width: 60%;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    #right {
+      width: 40%;
+      padding: 10px;
+      color: white;
+      font-size: 0.9em;
+      overflow-y: auto;
       white-space: pre-wrap;
-      word-break: break-word;
+    }
+    .note {
+      background: #222;
+      color: white;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-left: 4px solid red;
+      font-size: 0.9em;
+    }
+    .app {
+      margin-bottom: 5px;
+    }
+    #restorePanel {
+      background: #111;
+      padding: 10px;
+      border: 1px solid lime;
+      margin-top: 10px;
+    }
+    #restoreBar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      margin-top: 5px;
+    }
+    #restoreFill {
+      height: 100%;
+      width: 0%;
+      background: lime;
+    }
+    #escapeBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: red;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-size: 1em;
+      z-index: 9998;
+      transition: top 0.3s, left 0.3s;
     }
   </style>
 </head>
 <body>
-  <h1>⚠️ Sisteminiz YiğitPC tarafından ele geçirildi ⚠️</h1>
-  <pre id="codeDump"></pre>
+  <div id="lockScreen">
+    Cihaz kilitlendi. YiğitPC erişimi bekleniyor…
+    <div id="countdown">Geri sayım: 10</div>
+  </div>
+
+  <button id="escapeBtn">Benden kurtulmak için bas!</button>
+
+  <div id="main">
+    <div id="left">
+      <pre id="codeDump"></pre>
+      <pre id="dbDump"></pre>
+      <pre id="fileDelete"></pre>
+    </div>
+    <div id="right">
+      <div class="note">IP Adresi: 185.23.91.XX</div>
+      <div class="note">Konum: Ankara, Türkiye</div>
+      <div class="note">Kamera erişimi sağlandı…</div>
+      <div class="note">Mikrofon dinleniyor…</div>
+      <div id="accessPanel"></div>
+      <div id="restorePanel">
+        Sistem geri yükleniyor…
+        <div id="restoreBar"><div id="restoreFill"></div></div>
+        <div id="restoreStatus">—</div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // Sekme bombası
-    for (let i = 0; i < 10; i++) {
-      window.open(location.href, "_blank");
-    }
-
-    // Titreşim (mobilde)
+    // Titreşim
     if ("vibrate" in navigator) {
       navigator.vibrate([300, 100, 300, 100, 300]);
     }
+
+    // Geri sayım
+    let seconds = 10;
+    const countdown = document.getElementById("countdown");
+    const lockScreen = document.getElementById("lockScreen");
+    const escapeBtn = document.getElementById("escapeBtn");
+
+    const timer = setInterval(() => {
+      seconds--;
+      countdown.textContent = "Geri sayım: " + seconds;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        lockScreen.style.display = "none";
+      }
+    }, 1000);
+
+    // Kaçan buton
+    escapeBtn.addEventListener("click", () => {
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = Math.random() * (window.innerHeight - 50);
+      escapeBtn.style.left = x + "px";
+      escapeBtn.style.top = y + "px";
+    });
 
     // Kod yağmuru
     const codeDump = document.getElementById("codeDump");
@@ -57,30 +175,91 @@
       "lockScreen();",
       "startVirusProtocol();"
     ];
-
-    const interval = setInterval(() => {
+    setInterval(() => {
       const line = fakeCodes[Math.floor(Math.random() * fakeCodes.length)];
       codeDump.textContent += line + "\n";
-    }, 500);
+    }, 400);
 
-    // Final mesaj
+    // Uygulama erişim yüzdeleri
+    const apps = [
+      "Whatsapp",
+      "Instagram",
+      "X",
+      "Ayarlar",
+      "Cihaz Sistemi",
+      "DDOS Şeridi",
+      "Veri Tabanı",
+      "İnternet Ağı (Tüm Şifreler Toplanıyor)",
+      "Brawl Stars (Hesap Şifresi Kırılıyor)",
+      "Play Games (Hesap Bilgileri Alınıyor)",
+      "Aramalar ve Mesajlar (Loglanıyor)"
+    ];
+    const accessPanel = document.getElementById("accessPanel");
     setTimeout(() => {
-      clearInterval(interval);
-      document.body.innerHTML = `
-        <h1 style="color:red;">olm harbi linke tıkladınmı aq</h1>
-        <h2 style="color:white;">geçmiş olsun artık cihazın bende 😉😉😉</h2>
-        <pre id="finalDump"></pre>
-      `;
-      const finalDump = document.getElementById("finalDump");
-      setInterval(() => {
-        finalDump.textContent += fakeCodes[Math.floor(Math.random() * fakeCodes.length)] + "\n";
-      }, 300);
+      apps.forEach((app, i) => {
+        const div = document.createElement("div");
+        div.className = "app";
+        div.textContent = `${app} — %0`;
+        accessPanel.appendChild(div);
+        let percent = 0;
+        function updateProgress() {
+          percent += Math.floor(Math.random() * 5) + 1;
+          if (percent > 100) percent = 100;
+          div.textContent = `${app} — %${percent}`;
+          if (percent < 100) {
+            setTimeout(updateProgress, Math.random() * 300 + 100);
+          }
+        }
+        setTimeout(updateProgress, i * 500);
+      });
+    }, 3000);
 
-      // Titreşim tekrar
-      if ("vibrate" in navigator) {
-        navigator.vibrate([500, 200, 500, 200, 500]);
+    // Veri tabanı dump
+    const dbDump = document.getElementById("dbDump");
+    const fakeUsers = [
+      "[user_id: 9283] [email: tümuygulamortak@gmail.com] [kart: **** **** 1234 5678]",
+      "[user_id: 9284] [email: kendineaitmail@gmail.com] [kart: **** **** 9876 5432]",
+      "[user_id: 9285] [email: gameovner@gmail.com] [kart: **** **** 1111 2222]",
+      "[user_id: 9286] [email: brawlstars@gmail.com] [kart: **** **** 3333 4444]"
+    ];
+    let dbIndex = 0;
+    setInterval(() => {
+      if (dbIndex < fakeUsers.length) {
+        dbDump.textContent += fakeUsers[dbIndex++] + "\n";
       }
-    }, 8000);
+    }, 1500);
+
+    // Dosya silme animasyonu
+    const fileDelete = document.getElementById("fileDelete");
+    const files = [
+      "C:/Windows/System32/shell.dll siliniyor…",
+      "C:/Users/YigitKrk/Desktop/oyunlar.zip siliniyor…",
+      "C:/Program Files/Steam/steam.exe siliniyor…",
+      "C:/Android/data/com.brawlstars siliniyor…"
+    ];
+    let fileIndex = 0;
+    setInterval(() => {
+      if (fileIndex < files.length) {
+        fileDelete.textContent += files[fileIndex++] + "\n";
+      } else {
+        fileDelete.textContent += "Silme tamamlandı.\n";
+      }
+    }, 1200);
+
+    // Geri yükleme barı
+    const restoreFill = document.getElementById("restoreFill");
+    const restoreStatus = document.getElementById("restoreStatus");
+    let restorePercent = 0;
+    const restoreInterval = setInterval(() => {
+      restorePercent += Math.floor(Math.random() * 5) + 1;
+      if (restorePercent > 100) restorePercent = 100;
+      restoreFill.style.width = restorePercent + "%";
+      restoreStatus.textContent = `Yükleniyor: %${restorePercent}`;
+      if (restorePercent === 100) {
+        clearInterval(restoreInterval);
+        restoreStatus.textContent = "Yükleme başarısız!";
+      }
+    }, 300);
   </script>
 </body>
 </html>
