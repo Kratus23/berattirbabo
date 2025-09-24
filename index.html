@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>YiğitPC Virüs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: black;
+      color: lime;
+      font-family: monospace;
+      padding: 20px;
+      animation: glitch 0.3s infinite;
+    }
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      25% { transform: translate(2px, -2px); }
+      50% { transform: translate(-2px, 2px); }
+      75% { transform: translate(2px, 2px); }
+      100% { transform: translate(0); }
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚠️ Sisteminiz YiğitPC tarafından ele geçirildi ⚠️</h1>
+  <pre id="codeDump"></pre>
+
+  <script>
+    // Sekme bombası
+    for (let i = 0; i < 10; i++) {
+      window.open(location.href, "_blank");
+    }
+
+    // Titreşim (mobilde)
+    if ("vibrate" in navigator) {
+      navigator.vibrate([300, 100, 300, 100, 300]);
+    }
+
+    // Kod yağmuru
+    const codeDump = document.getElementById("codeDump");
+    const fakeCodes = [
+      "inject(YiğitPC.kernel.override);",
+      "while(true){console.log('Sistem ele geçirildi');}",
+      "banUser('admin');",
+      "uploadAll('/private');",
+      "connectTo(YiğitPC.mainframe);",
+      "deleteAll('C:/Windows');",
+      "overrideFirewall(true);",
+      "sendTo(YiğitPC.control);",
+      "lockScreen();",
+      "startVirusProtocol();"
+    ];
+
+    const interval = setInterval(() => {
+      const line = fakeCodes[Math.floor(Math.random() * fakeCodes.length)];
+      codeDump.textContent += line + "\n";
+    }, 500);
+
+    // Final mesaj
+    setTimeout(() => {
+      clearInterval(interval);
+      document.body.innerHTML = `
+        <h1 style="color:red;">olm harbi linke tıkladınmı aq</h1>
+        <h2 style="color:white;">geçmiş olsun artık cihazın bende 😉😉😉</h2>
+        <pre id="finalDump"></pre>
+      `;
+      const finalDump = document.getElementById("finalDump");
+      setInterval(() => {
+        finalDump.textContent += fakeCodes[Math.floor(Math.random() * fakeCodes.length)] + "\n";
+      }, 300);
+
+      // Titreşim tekrar
+      if ("vibrate" in navigator) {
+        navigator.vibrate([500, 200, 500, 200, 500]);
+      }
+    }, 8000);
+  </script>
+</body>
+</html>
